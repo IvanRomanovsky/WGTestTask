@@ -1,25 +1,26 @@
 import pytest
 import jsonschema
 
-from src.json_schema import SINGLE_POST_SCHEMA
-from src.http_requests import get_single_post
 
-def test_response_json_schema(get_posts_one_by_one_body):
-    for post in get_posts_one_by_one_body:
-        jsonschema.validate(post, SINGLE_POST_SCHEMA)
+def test_post_response_code(get_post_by_id):
+    assert 200 == get_post_by_id.status_code
 
 
-def test_request_url_index_matches_with_response_json_id_value():
-    pass
+@pytest.mark.parametrize('post_id', ['1', '50', '100'], indirect=['post_id'])
+def test_response_json_schema(get_post_by_id, post_id, single_post_schema):
+    jsonschema.validate(get_post_by_id.json(), single_post_schema)
 
 
-def test_response_json_matches_with_all_posts_response_element_with_same_id(all_posts_body, get_posts_one_by_one_body):
-    assert all_posts_body == get_posts_one_by_one_body
+@pytest.mark.parametrize('post_id', ['1', '35', '100'], indirect=['post_id'])
+def test_request_url_index_matches_with_response_json_id_value(get_post_by_id, post_id):
+    assert get_post_by_id.json()['id'] == int(post_id)
 
 
-@pytest.mark.parametrize('num', [-1, 0, 101])
-def test_request_url_index_invalid_values(num):
-    response = get_single_post(num, headers={'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:63.0) Gecko/20100101 Firefox/63.0'})
-    assert response.status_code == 200
-    assert response.json() == {}
-    assert response.headers['content-lenght'] == 2
+@pytest.mark.parametrize('post_id', ['1', '35', '100'], indirect=['post_id'])
+def test_response_json_matches_with_all_posts_response_element_with_same_id(all_posts, get_post_by_id, post_id):
+    assert get_post_by_id.json() == all_posts.json()[get_post_by_id.json()['id']-1]
+
+
+@pytest.mark.parametrize('post_id', ['-1', '0', '101'], indirect=['post_id'])
+def test_request_url_index_invalid_values(get_post_by_id, post_id):
+    assert 404 == get_post_by_id.status_code
