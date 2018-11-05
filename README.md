@@ -1,10 +1,8 @@
-# WGTestTask
 
-h3. Installation
+# Installation
 $pipenv --install
 
 
-h3. Run tests
+# Run tests
 $pipenv shell
 $py.test -v
-
