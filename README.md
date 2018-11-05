@@ -1,6 +1,6 @@
 
 # Installation
-$pipenv --install
+$pipenv install
 
 
 # Run tests
