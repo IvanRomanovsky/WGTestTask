@@ -1,4 +1,5 @@
 import pytest
+
 from tests.http_utils import http_get
 
 pytest_plugins = ['user_agent_fixtures', 'json_validate_schema_fixtures']
